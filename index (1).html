@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موقع الألعاب</title>
+  <style>
+    /* إعادة ضبط الشاشة وتحديد الخلفية السوداء */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #000000; /* خلفية سوداء بالكامل */
+      color: #ffffff;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+      text-align: center;
+    }
+
+    /* شبكة عرض كروت الألعاب */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* مربع اللعبة (شفاف) */
+    .game-card {
+      background-color: rgba(255, 255, 255, 0.05); /* شفافية خفيفة جداً لتحديد المربع */
+      border: 1px solid rgba(255, 255, 255, 0.1);  /* إطار شفاف خفيف */
+      border-radius: 16px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .game-card:hover {
+      background-color: rgba(255, 255, 255, 0.1); /* زيادة الشفافية عند التأشير */
+      transform: translateY(-5px);
+    }
+
+    /* صورة اللعبة */
+    .game-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    /* اسم اللعبة */
+    .game-title {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    /* زر Play الأبيض مع الإطار الشفاف البيضاوي الدائري */
+    .play-btn {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.15); /* لون شفاف تحت الكلمة */
+      border: 2px solid rgba(255, 255, 255, 0.4);  /* إطار دائري/بيضاوي شفاف حول الكلمة */
+      border-radius: 50px;                       /* يجعل الحواف مدورة كالدائرة */
+      padding: 8px 26px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    /* تأثير عند الوقوف على زر Play */
+    .play-btn:hover {
+      background-color: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>مكتبة الألعاب</h1>
+
+  <div class="games-grid">
+    
+    <!-- كارت لعبة 1 -->
+    <div class="game-card">
+      <img src="https://via.placeholder.com/300x180/222/fff?text=Game+1" alt="اسم اللعبة" class="game-image">
+      <h2 class="game-title">اسم اللعبة الأول</h2>
+      <a href="#" class="play-btn">Play</a>
+    </div>
+
+    <!-- كارت لعبة 2 -->
+    <div class="game-card">
+      <img src="https://via.placeholder.com/300x180/222/fff?text=Game+2" alt="اسم اللعبة" class="game-image">
+      <h2 class="game-title">اسم اللعبة الثاني</h2>
+      <a href="#" class="play-btn">Play</a>
+    </div>
+
+    <!-- كارت لعبة 3 -->
+    <div class="game-card">
+      <img src="https://via.placeholder.com/300x180/222/fff?text=Game+3" alt="اسم اللعبة" class="game-image">
+      <h2 class="game-title">اسم اللعبة الثالث</h2>
+      <a href="#" class="play-btn">Play</a>
+    </div>
+
+  </div>
+
+</body>
+</html>

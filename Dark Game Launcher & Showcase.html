@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Arcade | منصة الألعاب</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Cairo & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Marked.js for rendering markdown dynamically in the README modal -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#000000',
+              cardBg: 'rgba(255, 255, 255, 0.03)',
+              cardBorder: 'rgba(255, 255, 255, 0.1)',
+              btnBg: 'rgba(255, 255, 255, 0.12)',
+              btnBorder: 'rgba(255, 255, 255, 0.35)',
+            }
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: 'Cairo', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Glassmorphism Card Style */
+    .game-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .game-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px -10px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Distinct Fitted Play Button (Oval/Pill with semi-transparent ring) */
+    .play-btn {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 9999px; /* Pill / Oval shape */
+      padding: 6px 22px;
+      font-family: 'Inter', 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease-in-out;
+      width: fit-content;
+    }
+
+    .play-btn:hover {
+      background-color: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+    }
+
+    /* README Markdown Modal Custom Styles */
+    .markdown-body {
+      color: #d1d5db;
+      font-family: 'Cairo', 'Inter', sans-serif;
+      line-height: 1.7;
+    }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.3rem;
+    }
+    .markdown-body h1 { font-size: 1.8rem; }
+    .markdown-body h2 { font-size: 1.4rem; }
+    .markdown-body h3 { font-size: 1.15rem; }
+    .markdown-body code {
+      background: rgba(255, 255, 255, 0.1);
+      color: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .markdown-body pre {
+      background: #0d0d0d;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    .markdown-body pre code {
+      background: transparent;
+      padding: 0;
+      color: #38bdf8;
+    }
+    .markdown-body ul {
+      list-style-type: disc;
+      padding-right: 1.5rem;
+      margin: 0.75rem 0;
+    }
+    .markdown-body ol {
+      list-style-type: decimal;
+      padding-right: 1.5rem;
+      margin: 0.75rem 0;
+    }
+    .markdown-body a {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between">
+
+  <!-- Top Navigation Header -->
+  <header class="w-full border-b border-white/10 bg-black/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white text-xl shadow-inner">
+          <i class="fa-solid font-bold fa-gamepad"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-wider text-white flex items-center gap-2">
+            NEXUS <span class="text-xs bg-white/10 border border-white/20 px-2 py-0.5 rounded-full font-mono text-gray-300">ARCADE</span>
+          </h1>
+          <p class="text-xs text-gray-400">بوابة الألعاب والسيرفرات السريعة</p>
+        </div>
+      </div>
+
+      <!-- Actions & README Launcher Trigger -->
+      <div class="flex items-center gap-3">
+        <button id="openReadmeBtn" class="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-sm font-semibold text-white transition-all shadow-sm">
+          <i class="fa-brands fa-github text-base"></i>
+          <span>دليل التشغيل (README.md)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+    
+    <!-- Hero / Category Title -->
+    <div class="mb-10 text-center sm:text-right flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-white/10 pb-6">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">الألعاب المتاحة حالياً</h2>
+        <p class="text-gray-400 text-sm mt-1">اختر لعبتك المفضل وقم بالتشغيل المباشر أو التوجيه</p>
+      </div>
+
+      <!-- Quick Search / Filter Bar -->
+      <div class="relative w-full sm:w-72">
+        <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+        <input type="text" id="searchInput" placeholder="بحث عن لعبة..." class="w-full bg-white/5 border border-white/15 rounded-xl pr-10 pl-4 py-2 text-sm text-white focus:outline-none focus:border-white/40 transition-colors placeholder-gray-500">
+      </div>
+    </div>
+
+    <!-- Games Grid -->
+    <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      
+      <!-- Game Card 1 -->
+      <div class="game-card rounded-2xl p-4 flex flex-col justify-between group">
+        <div>
+          <div class="relative overflow-hidden rounded-xl mb-4 h-44 w-full">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80" alt="Cyber Racer" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+            <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-xs text-gray-300 border border-white/10 px-2.5 py-1 rounded-full">سباقات</span>
+          </div>
+          <h3 class="text-lg font-bold text-white text-center mb-2">سباق السايبر 3D</h3>
+        </div>
+        <div class="flex justify-center pt-2">
+          <a href="#" onclick="launchGame('https://play.pacman.com/', 'سباق السايبر 3D')" class="play-btn">
+            <span>Play</span>
+            <i class="fa-solid fa-play text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Game Card 2 -->
+      <div class="game-card rounded-2xl p-4 flex flex-col justify-between group">
+        <div>
+          <div class="relative overflow-hidden rounded-xl mb-4 h-44 w-full">
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80" alt="Space Odyssey" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+            <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-xs text-gray-300 border border-white/10 px-2.5 py-1 rounded-full">مغامرات</span>
+          </div>
+          <h3 class="text-lg font-bold text-white text-center mb-2">رحلة المريخ</h3>
+        </div>
+        <div class="flex justify-center pt-2">
+          <a href="#" onclick="launchGame('https://2048game.com/', 'رحلة المريخ')" class="play-btn">
+            <span>Play</span>
+            <i class="fa-solid fa-play text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Game Card 3 -->
+      <div class="game-card rounded-2xl p-4 flex flex-col justify-between group">
+        <div>
+          <div class="relative overflow-hidden rounded-xl mb-4 h-44 w-full">
+            <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=600&q=80" alt="Pixel Arena" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+            <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-xs text-gray-300 border border-white/10 px-2.5 py-1 rounded-full">أكشن</span>
+          </div>
+          <h3 class="text-lg font-bold text-white text-center mb-2">ساحة البكسل المعتمة</h3>
+        </div>
+        <div class="flex justify-center pt-2">
+          <a href="#" onclick="launchGame('https://slither.io/', 'ساحة البكسل المعتمة')" class="play-btn">
+            <span>Play</span>
+            <i class="fa-solid fa-play text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Game Card 4 -->
+      <div class="game-card rounded-2xl p-4 flex flex-col justify-between group">
+        <div>
+          <div class="relative overflow-hidden rounded-xl mb-4 h-44 w-full">
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="Retro Arcade" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+            <span class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-xs text-gray-300 border border-white/10 px-2.5 py-1 rounded-full">كلاسيك</span>
+          </div>
+          <h3 class="text-lg font-bold text-white text-center mb-2">تتريس الغموض</h3>
+        </div>
+        <div class="flex justify-center pt-2">
+          <a href="#" onclick="launchGame('https://tetris.com/play-tetris', 'تتريس الغموض')" class="play-btn">
+            <span>Play</span>
+            <i class="fa-solid fa-play text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- In-App Game Launcher Modal (Iframe view) -->
+  <div id="gameModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex-col transition-opacity duration-300">
+    <!-- Modal Header Bar -->
+    <div class="w-full bg-black border-b border-white/10 p-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span id="activeGameTitle" class="text-lg font-bold text-white">تشغيل اللعبة</span>
+        <span class="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded-full">نشط</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a id="externalGameLink" href="#" target="_blank" class="text-xs text-gray-400 hover:text-white flex items-center gap-1 border border-white/15 px-3 py-1.5 rounded-lg transition-colors">
+          <span>فتح في نافذة جديدة</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <button onclick="closeGameModal()" class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-gray-300 hover:text-white flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Modal Iframe Container -->
+    <div class="flex-grow w-full bg-black relative">
+      <iframe id="gameIframe" src="" class="w-full h-full border-none" allow="autoplay; fullscreen; keyboard"></iframe>
+    </div>
+  </div>
+
+  <!-- README Documentation Modal -->
+  <div id="readmeModal" class="fixed inset-0 bg-black/85 backdrop-blur-lg z-50 hidden flex items-center justify-center p-4 sm:p-6">
+    <div class="bg-[#0a0a0a] border border-white/15 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <div class="flex items-center gap-2">
+          <i class="fa-regular fa-file-lines text-sky-400 text-lg"></i>
+          <h3 class="text-lg font-bold text-white">توثيق المشروع ودليل الاستخدام (README.md)</h3>
+        </div>
+        <button onclick="closeReadmeModal()" class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-gray-300 hover:text-white flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Markdown Render Content Body -->
+      <div class="p-6 overflow-y-auto flex-grow markdown-body text-right" dir="rtl" id="readmeContent">
+        <!-- Markdown dynamically rendered here -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-white/10 bg-white/5 flex justify-between items-center">
+        <span class="text-xs text-gray-400">Nexus Arcade © 2026</span>
+        <button onclick="closeReadmeModal()" class="px-5 py-2 bg-white text-black font-bold rounded-xl text-sm hover:bg-gray-200 transition-colors">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full border-t border-white/10 py-6 text-center text-xs text-gray-500">
+    <p>جميع الحقوق محفوظة © 2026 - Nexus Dark Arcade</p>
+  </footer>
+
+  <!-- Embedded README Markdown Raw Content -->
+  <script type="text/markdown" id="rawReadme">
+# 🎮 موقع Nexus Arcade - التوثيق الكامل (README.md)
+
+أهلاً بك في توثيق مشروع **Nexus Arcade**. هذا الموقع مصمم بتصميم حديث وبسيطة باللون الأسود الكامل مع كروت شفافة، ويوفر آلية توجيه آلي (Automatic Redirect) وتشغيل الألعاب بسهولة.
+
+---
+
+## 🚀 كيفية التعديل وإضافة ألعابك الخاصة
+
+تستطيع إضافة أي لعبة جديدة أو رابط توجيه في ملف `index.html` بسهولة عن طريق تعديل أو نسخ العنصر التالي داخل كود HTML:
+
+```html
+<div class="game-card rounded-2xl p-4 flex flex-col justify-between group">
+  <div>
+    <div class="relative overflow-hidden rounded-xl mb-4 h-44 w-full">
+      <img src="رابط_صورة_اللعبة" alt="اسم اللعبة" class="w-full h-full object-cover">
+    </div>
+    <h3 class="text-lg font-bold text-white text-center mb-2">اسم اللعبة</h3>
+  </div>
+  <div class="flex justify-center pt-2">
+    <a href="#" onclick="launchGame('رابط_اللعبة_أو_التوجيه', 'اسم اللعبة')" class="play-btn">
+      <span>Play</span>
+      <i class="fa-solid fa-play text-xs"></i>
+    </a>
+  </div>
+</div>
+```
+
+---
+
+## 🔄 كيفية عمل صفحة توجيه تلقائي (Auto-Redirect HTML)
+
+إذا كنت تريد إنشاء صفحة `redirect.html` مستقلة تقوم بنقل المستخدم تلقائياً للعبة بعد ثوانٍ معينة، يمكنك استخدام الكود التالي:
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <!-- التوجيه التلقائي بعد 3 ثواني -->
+  <meta http-equiv="refresh" content="3;url=https://your-game-url.com">
+  <title>جاري التوجيه للعبة...</title>
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div style="text-align: center;">
+    <h2>جاري تحويلك إلى اللعبة خلال 3 ثوانٍ...</h2>
+    <p>إذا لم يتم تحويلك تلقائياً، <a href="https://your-game-url.com" style="color: #38bdf8;">اضغط هنا</a>.</p>
+  </div>
+</body>
+</html>
+```
+
+---
+
+## 🌐 رفع الموقع مجاناً (Deployment)
+
+يمكنك رفع هذا الموقع على العديد من المنصات المجانية في دقائق:
+
+1. **GitHub Pages:**
+   - قم بإنشاء المستودع (Repository) على GitHub.
+   - ارفع ملف `index.html`.
+   - اذهب إلى **Settings > Pages** واختر الفرع `main` للتشغيل.
+
+2. **Netlify / Vercel:**
+   - قم بسحب المجلد (Drag and Drop) إلى منصة Netlify أو ربطه بحساب GitHub الخاص بك ليتم النشر تلقائياً.
+  </script>
+
+  <script>
+    // Elements Setup
+    const openReadmeBtn = document.getElementById('openReadmeBtn');
+    const readmeModal = document.getElementById('readmeModal');
+    const readmeContent = document.getElementById('readmeContent');
+    const rawReadme = document.getElementById('rawReadme');
+
+    const gameModal = document.getElementById('gameModal');
+    const gameIframe = document.getElementById('gameIframe');
+    const activeGameTitle = document.getElementById('activeGameTitle');
+    const externalGameLink = document.getElementById('externalGameLink');
+
+    const searchInput = document.getElementById('searchInput');
+    const gamesGrid = document.getElementById('gamesGrid');
+
+    // Parse Markdown to HTML for Modal
+    window.onload = function() {
+      if (typeof marked !== 'undefined' && rawReadme) {
+        readmeContent.innerHTML = marked.parse(rawReadme.textContent);
+      }
+    };
+
+    // README Modal Actions
+    openReadmeBtn.addEventListener('click', () => {
+      readmeModal.classList.remove('hidden');
+    });
+
+    function closeReadmeModal() {
+      readmeModal.classList.add('hidden');
+    }
+
+    // Launch Game in Iframe Modal
+    function launchGame(url, title) {
+      activeGameTitle.textContent = title;
+      gameIframe.src = url;
+      externalGameLink.href = url;
+      gameModal.classList.remove('hidden');
+      gameModal.classList.add('flex');
+    }
+
+    function closeGameModal() {
+      gameModal.classList.add('hidden');
+      gameModal.classList.remove('flex');
+      gameIframe.src = '';
+    }
+
+    // Interactive Search Filter
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      const cards = gamesGrid.querySelectorAll('.game-card');
+
+      cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        if (title.includes(term)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
