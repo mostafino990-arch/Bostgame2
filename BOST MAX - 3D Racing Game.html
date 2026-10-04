@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BOST MAX - 3D Racing Game</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      background-color: #030305;
+      color: #ffffff;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Glassmorphism HUD Overlay */
+    .hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-card {
+      background: rgba(15, 15, 25, 0.55);
+      border: 1px solid rgba(0, 255, 204, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 24px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hud-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #8a8a9b;
+      margin-bottom: 2px;
+    }
+
+    .hud-value {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #00ffcc;
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+    }
+
+    .hud-value.score {
+      color: #ff0055;
+      text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+    }
+
+    /* Start / Game Over Screen */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 3, 5, 0.85);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      padding: 20px;
+      text-align: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .game-title {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #ff0055 0%, #00ffcc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+      text-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #a0a0b0;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    .btn-action {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(255, 0, 85, 0.8) 0%, rgba(0, 255, 204, 0.8) 100%);
+      border: none;
+      border-radius: 50px;
+      padding: 16px 50px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 0 35px rgba(0, 255, 204, 0.6);
+    }
+
+    .btn-action:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    /* Mobile Controls Overlay */
+    .controls-panel {
+      position: absolute;
+      bottom: 25px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 25px;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      pointer-events: auto;
+    }
+
+    .touch-btn {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #ffffff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      touch-action: manipulation;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .touch-btn:active {
+      background: rgba(0, 255, 204, 0.4);
+      transform: scale(0.92);
+    }
+
+    .touch-btn.brake:active {
+      background: rgba(255, 0, 85, 0.4);
+    }
+
+    .instructions {
+      margin-top: 25px;
+      font-size: 0.9rem;
+      color: #707085;
+      display: flex;
+      gap: 20px;
+    }
+
+    .instruction-tag {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- Heads Up Display -->
+    <div class="hud">
+      <div class="hud-card">
+        <span class="hud-title">SPEED</span>
+        <div class="hud-value"><span id="speed">0</span> <small style="font-size:0.9rem">KM/H</small></div>
+      </div>
+      <div class="hud-card">
+        <span class="hud-title">SCORE</span>
+        <div id="score" class="hud-value score">0</div>
+      </div>
+    </div>
+
+    <!-- Start / Restart Overlay -->
+    <div id="start-screen" class="overlay">
+      <h1 class="game-title">BOST MAX</h1>
+      <p class="subtitle">HIGH-SPEED NEON RACING SIMULATOR</p>
+      <button class="btn-action" onclick="startGame()">START RACE</button>
+      <div class="instructions">
+        <span class="instruction-tag"><i class="fa-solid fa-keyboard"></i> Use Arrow Keys</span>
+        <span class="instruction-tag"><i class="fa-solid fa-mobile-screen"></i> On-screen Touch Controls</span>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Controls -->
+    <div class="controls-panel">
+      <div class="btn-group">
+        <div class="touch-btn" id="btn-left"><i class="fa-solid fa-chevron-left"></i></div>
+        <div class="touch-btn" id="btn-right"><i class="fa-solid fa-chevron-right"></i></div>
+      </div>
+      <div class="btn-group">
+        <div class="touch-btn brake" id="btn-brake"><i class="fa-solid fa-ban"></i></div>
+        <div class="touch-btn" id="btn-gas"><i class="fa-solid fa-bolt"></i></div>
+      </div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container"></div>
+  </div>
+
+  <script>
+    let scene, camera, renderer, playerCar, road;
+    let obstacles = [];
+    let speed = 0;
+    let maxSpeed = 220;
+    let score = 0;
+    let gameActive = false;
+    let spawnInterval = null;
+    let roadSegments = [];
+
+    const keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      ArrowLeft: false,
+      ArrowRight: false
+    };
+
+    // Initialize 3D World
+    function init() {
+      const container = document.getElementById('canvas-container');
+      
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x030305);
+      scene.fog = new THREE.FogExp2(0x030305, 0.012);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 3.5, 8);
+      camera.lookAt(0, 1, -10);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0x00ffcc, 1.2);
+      dirLight.position.set(0, 20, 10);
+      scene.add(dirLight);
+
+      // Create Infinite Road Geometry
+      createRoad();
+
+      // Create Player Vehicle
+      createPlayerCar();
+
+      // Setup Inputs & Touch Handlers
+      setupTouchControls();
+
+      // Event Listeners
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('keydown', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = true; });
+      window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+    }
+
+    function createRoad() {
+      const roadGeo = new THREE.PlaneGeometry(14, 1200);
+      const roadMat = new THREE.MeshStandardMaterial({ 
+        color: 0x0a0a10, 
+        roughness: 0.8 
+      });
+      road = new THREE.Mesh(roadGeo, roadMat);
+      road.rotation.x = -Math.PI / 2;
+      scene.add(road);
+
+      // Side Neon Lights
+      const lineGeo = new THREE.BoxGeometry(0.2, 1200, 0.1);
+      const leftLineMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+      const rightLineMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+
+      const leftLine = new THREE.Mesh(lineGeo, leftLineMat);
+      leftLine.position.set(-6.8, 0.1, 0);
+      leftLine.rotation.x = -Math.PI / 2;
+      scene.add(leftLine);
+
+      const rightLine = new THREE.Mesh(lineGeo, rightLineMat);
+      rightLine.position.set(6.8, 0.1, 0);
+      rightLine.rotation.x = -Math.PI / 2;
+      scene.add(rightLine);
+    }
+
+    function createPlayerCar() {
+      const group = new THREE.Group();
+
+      // Car Body
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(1.8, 0.6, 3.8),
+        new THREE.MeshStandardMaterial({ color: 0xff0055, metalness: 0.8, roughness: 0.2 })
+      );
+      body.position.y = 0.5;
+      group.add(body);
+
+      // Car Cabin
+      const cabin = new THREE.Mesh(
+        new THREE.BoxGeometry(1.4, 0.5, 1.8),
+        new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 })
+      );
+      cabin.position.set(0, 0.9, -0.2);
+      group.add(cabin);
+
+      // Tail Lights Glow
+      const tailLightGeo = new THREE.BoxGeometry(0.4, 0.15, 0.1);
+      const tailLightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      
+      const leftTail = new THREE.Mesh(tailLightGeo, tailLightMat);
+      leftTail.position.set(-0.6, 0.5, 1.9);
+      group.add(leftTail);
+
+      const rightTail = new THREE.Mesh(tailLightGeo, tailLightMat);
+      rightTail.position.set(0.6, 0.5, 1.9);
+      group.add(rightTail);
+
+      playerCar = group;
+      scene.add(playerCar);
+    }
+
+    function setupTouchControls() {
+      const bindTouch = (id, key) => {
+        const el = document.getElementById(id);
+        el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+        el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+      };
+
+      bindTouch('btn-left', 'ArrowLeft');
+      bindTouch('btn-right', 'ArrowRight');
+      bindTouch('btn-gas', 'ArrowUp');
+      bindTouch('btn-brake', 'ArrowDown');
+    }
+
+    function spawnObstacle() {
+      if (!gameActive) return;
+
+      const obsGroup = new THREE.Group();
+      const isTruck = Math.random() > 0.6;
+      
+      const width = isTruck ? 2.0 : 1.7;
+      const height = isTruck ? 1.2 : 0.6;
+      const length = isTruck ? 5.0 : 3.5;
+      const color = isTruck ? 0x00ffcc : 0xffee00;
+
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(width, height, length),
+        new THREE.MeshStandardMaterial({ color: color, metalness: 0.5, roughness: 0.3 })
+      );
+      body.position.y = height / 2;
+      obsGroup.add(body);
+
+      const lanes = [-4, 0, 4];
+      const selectedLane = lanes[Math.floor(Math.random() * lanes.length)];
+      
+      obsGroup.position.set(selectedLane, 0, playerCar.position.z - 120);
+      scene.add(obsGroup);
+      obstacles.push(obsGroup);
+    }
+
+    function startGame() {
+      document.getElementById('start-screen').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('start-screen').style.display = 'none';
+      }, 300);
+
+      gameActive = true;
+      speed = 40;
+      score = 0;
+      playerCar.position.set(0, 0, 0);
+
+      obstacles.forEach(obs => scene.remove(obs));
+      obstacles = [];
+
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnObstacle, 900);
+
+      animate();
+    }
+
+    function animate() {
+      if (!gameActive) return;
+
+      requestAnimationFrame(animate);
+
+      // Vehicle Movement & Acceleration
+      if (keys.ArrowUp && speed < maxSpeed) speed += 0.6;
+      if (keys.ArrowDown && speed > 10) speed -= 1.2;
+      if (!keys.ArrowUp && !keys.ArrowDown && speed > 20) speed -= 0.2;
+
+      if (keys.ArrowLeft && playerCar.position.x > -4.5) {
+        playerCar.position.x -= 0.18;
+        playerCar.rotation.z = 0.08;
+      } else if (keys.ArrowRight && playerCar.position.x < 4.5) {
+        playerCar.position.x += 0.18;
+        playerCar.rotation.z = -0.08;
+      } else {
+        playerCar.rotation.z = 0;
+      }
+
+      // Forward Motion
+      playerCar.position.z -= speed * 0.04;
+      camera.position.z = playerCar.position.z + 7;
+      camera.position.x = playerCar.position.x * 0.4;
+
+      // Keep Road Centered
+      road.position.z = playerCar.position.z;
+
+      // Calculate Score
+      score += Math.floor(speed * 0.05);
+      document.getElementById('speed').innerText = Math.floor(speed);
+      document.getElementById('score').innerText = score;
+
+      // Collision Detection & Cleaning
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+
+        // Check Collision
+        const distance = playerCar.position.distanceTo(obs.position);
+        if (distance < 2.2) {
+          endGame();
+          return;
+        }
+
+        // Clean Passed Obstacles
+        if (obs.position.z > playerCar.position.z + 10) {
+          scene.remove(obs);
+          obstacles.splice(i, 1);
+        }
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    function endGame() {
+      gameActive = false;
+      if (spawnInterval) clearInterval(spawnInterval);
+
+      const overlay = document.getElementById('start-screen');
+      overlay.querySelector('.game-title').innerText = "GAME OVER";
+      overlay.querySelector('.subtitle').innerText = `FINAL SCORE: ${score}`;
+      overlay.querySelector('.btn-action').innerText = "RETRY";
+      
+      overlay.style.display = 'flex';
+      setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
